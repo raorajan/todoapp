@@ -14,7 +14,7 @@ const TaskFormSchema = z.object({
 
 type TaskFormData = z.infer<typeof TaskFormSchema>;
 
-import { Card, Button, Input, Select, Badge, Modal, Textarea } from '../../components/UI';
+import { Card, Button, Input, Select, Badge, Modal, Textarea, TaskSkeleton } from '../../components/UI';
 
 export default function TasksComponent() {
   const dispatch = useAppDispatch();
@@ -24,7 +24,6 @@ export default function TasksComponent() {
   const [formData, setFormData] = useState<TaskFormData>({ title: '', description: '', priority: 'medium' });
   const [errors, setErrors] = useState<Partial<Record<keyof TaskFormData, string>>>({});
   
-  // Modal state
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
   const [taskToDelete, setTaskToDelete] = useState<string | null>(null);
 
@@ -69,7 +68,7 @@ export default function TasksComponent() {
 
   return (
     <div className="animate-in">
-      {/* Delete Confirmation Modal */}
+      
       <Modal 
         isOpen={isDeleteModalOpen} 
         onClose={() => setIsDeleteModalOpen(false)} 
@@ -118,11 +117,11 @@ export default function TasksComponent() {
         </form>
       </Card>
 
-
-
       {loading ? (
-        <div style={{ textAlign: 'center', padding: '4rem', opacity: 0.5 }}>
-          <div className="animate-pulse">Loading tasks...</div>
+        <div style={{ display: 'grid', gap: '1.25rem' }}>
+          <TaskSkeleton />
+          <TaskSkeleton />
+          <TaskSkeleton />
         </div>
       ) : (
         list.length === 0 ? (

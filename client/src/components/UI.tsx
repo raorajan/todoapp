@@ -81,3 +81,34 @@ export const Modal: React.FC<{
   );
 };
 
+export const Skeleton: React.FC<{ width?: string, height?: string, borderRadius?: string, className?: string, style?: React.CSSProperties }> = ({ 
+  width = '100%', 
+  height = '20px', 
+  borderRadius = '0.5rem',
+  className = '',
+  style = {}
+}) => (
+  <div 
+    className={`skeleton ${className}`} 
+    style={{ width, height, borderRadius, ...style }}
+  />
+);
+
+export const TaskSkeleton: React.FC = () => (
+  <Card className="task-card" style={{ opacity: 0.7 }}>
+    <div style={{ flex: 1 }}>
+      <div style={{ display: 'flex', gap: '0.75rem', marginBottom: '0.8rem' }}>
+        <Skeleton width="60%" height="24px" />
+        <Skeleton width="60px" height="24px" />
+        <Skeleton width="80px" height="24px" />
+      </div>
+      <Skeleton width="90%" height="16px" style={{ marginBottom: '0.5rem' }} />
+      <Skeleton width="40%" height="14px" />
+    </div>
+    <div style={{ display: 'flex', gap: '0.75rem', marginLeft: 'auto', alignItems: 'center' }}>
+      <Skeleton width="100px" height="36px" />
+      <Skeleton width="40px" height="40px" borderRadius="0.5rem" />
+    </div>
+  </Card>
+);
+

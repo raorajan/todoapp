@@ -410,3 +410,34 @@ select.input option {
 .delay-3 {
   animation-delay: 0.3s;
 }
+
+.skeleton {
+  background: var(--card-bg);
+  background: linear-gradient(
+    90deg,
+    rgba(255, 255, 255, 0.03) 25%,
+    rgba(255, 255, 255, 0.08) 37%,
+    rgba(255, 255, 255, 0.03) 63%
+  );
+  background-size: 400% 100%;
+  animation: skeleton-loading 1.4s ease infinite;
+  position: relative;
+  overflow: hidden;
+}
+
+@media (prefers-color-scheme: light) {
+  .skeleton {
+    background: linear-gradient(
+      90deg,
+      rgba(0, 0, 0, 0.03) 25%,
+      rgba(0, 0, 0, 0.08) 37%,
+      rgba(0, 0, 0, 0.03) 63%
+    );
+    background-size: 400% 100%;
+  }
+}
+
+@keyframes skeleton-loading {
+  0% { background-position: 100% 50%; }
+  100% { background-position: 0% 50%; }
+}

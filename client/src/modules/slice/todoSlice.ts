@@ -12,7 +12,7 @@ interface Task {
 
 export const fetchTasks = createAsyncThunk('tasks/fetch', async () => {
   const res = await fetchFromApiServer('GET', '/api/tasks');
-  // Normalize backend response: support either raw array or { data: [...] }
+
   return (res.data && res.data.data) ? res.data.data : res.data;
 });
 
