@@ -3,6 +3,7 @@ import dotenv from 'dotenv';
 import cors from 'cors';
 import helmet from 'helmet';
 import connectDB from './config/database';
+import todoRoutes from './routes/todo.route';
 
 dotenv.config();
 connectDB();
@@ -27,6 +28,8 @@ app.use((req: Request, res: Response) => {
 const server = app.listen(PORT, () => {
   console.log(`Server running on port ${PORT} in ${process.env.NODE_ENV} mode`);
 });
+
+app.use('/api/tasks', todoRoutes)
 
 process.on('unhandledRejection', (err: Error) => {
   console.log('UNHANDLED REJECTION! 💥 Shutting down...');
