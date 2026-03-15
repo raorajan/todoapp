@@ -14,7 +14,7 @@ const TaskFormSchema = z.object({
 
 type TaskFormData = z.infer<typeof TaskFormSchema>;
 
-import { Card, Button, Input, Select, Badge } from '../../components/UI';
+import { Card, Button, Input, Select, Badge, Modal, Textarea } from '../../components/UI';
 
 export default function TasksComponent() {
   const dispatch = useAppDispatch();
@@ -23,6 +23,10 @@ export default function TasksComponent() {
 
   const [formData, setFormData] = useState<TaskFormData>({ title: '', description: '', priority: 'medium' });
   const [errors, setErrors] = useState<Partial<Record<keyof TaskFormData, string>>>({});
+  
+  // Modal state
+  const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
+  const [taskToDelete, setTaskToDelete] = useState<string | null>(null);
 
   useEffect(() => { dispatch(fetchTasks()).catch(() => {}); }, [dispatch]);
 
@@ -43,11 +47,18 @@ export default function TasksComponent() {
     } catch (err) { console.error('Create failed', err); }
   };
 
-  const handleDelete = async (id: string) => {
-    if (!confirm('Are you sure you want to delete this task?')) return;
+  const confirmDelete = async () => {
+    if (!taskToDelete) return;
     try {
-      await dispatch(deleteTask(id)).unwrap();
+      await dispatch(deleteTask(taskToDelete)).unwrap();
+      setIsDeleteModalOpen(false);
+      setTaskToDelete(null);
     } catch (e) { console.error('Delete failed', e); }
+  };
+
+  const handleDeleteClick = (id: string) => {
+    setTaskToDelete(id);
+    setIsDeleteModalOpen(true);
   };
 
   const handleStatus = async (id: string, status: TaskStatus) => {
@@ -58,6 +69,21 @@ export default function TasksComponent() {
 
   return (
     <div className="animate-in">
+      {/* Delete Confirmation Modal */}
+      <Modal 
+        isOpen={isDeleteModalOpen} 
+        onClose={() => setIsDeleteModalOpen(false)} 
+        title="Delete Task"
+        footer={
+          <>
+            <Button variant="ghost" onClick={() => setIsDeleteModalOpen(false)}>Cancel</Button>
+            <Button variant="danger" onClick={confirmDelete}>Delete</Button>
+          </>
+        }
+      >
+        <p>Are you sure you want to delete this task? This action cannot be undone.</p>
+      </Modal>
+
       <Card className="glass" style={{ marginBottom: '2.5rem', padding: '1.5rem' }}>
         <form onSubmit={handleCreate} className="task-form">
           <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem', flex: 1 }}>
@@ -68,11 +94,11 @@ export default function TasksComponent() {
               style={{ fontSize: '1.1rem', fontWeight: 500 }}
             />
             {errors.title && <span style={{ color: 'var(--error)', fontSize: '0.8rem' }}>{errors.title}</span>}
-            <Input 
+            <Textarea 
               value={formData.description} 
               onChange={e => setFormData({ ...formData, description: e.target.value })} 
               placeholder="Add a description (optional)" 
-              style={{ fontSize: '0.9rem', opacity: 0.8 }}
+              style={{ fontSize: '0.9rem', opacity: 0.8, minHeight: '60px' }}
             />
           </div>
           <div style={{ display: 'flex', gap: '0.75rem', alignItems: 'start' }}>
@@ -91,6 +117,8 @@ export default function TasksComponent() {
           </div>
         </form>
       </Card>
+
+
 
       {loading ? (
         <div style={{ textAlign: 'center', padding: '4rem', opacity: 0.5 }}>
@@ -143,7 +171,7 @@ export default function TasksComponent() {
                     onClick={(e) => {
                       e.preventDefault();
                       e.stopPropagation();
-                      handleDelete(t._id);
+                      handleDeleteClick(t._id);
                     }}
                     style={{ padding: '0.5rem', borderRadius: '0.5rem', color: 'var(--error)', minWidth: '40px' }}
                     title="Delete Task"
@@ -160,6 +188,7 @@ export default function TasksComponent() {
       )}
     </div>
   );
+
 
 }
 

@@ -49,11 +49,13 @@ const slice = createSlice({
       .addCase(fetchTasks.fulfilled, (state, action) => { state.loading = false; state.items = action.payload; })
       .addCase(fetchTasks.rejected, (state, action) => { state.loading = false; state.error = action.error.message || 'Error fetching'; })
 
-      .addCase(createTask.pending, state => { state.loading = true; })
+      .addCase(createTask.pending, state => { state.error = null; })
+
       .addCase(createTask.fulfilled, (state, action) => { state.loading = false; state.items.unshift(action.payload); })
       .addCase(createTask.rejected, (state, action) => { state.loading = false; state.error = action.error.message; })
 
-      .addCase(updateTask.pending, state => { state.loading = true; })
+      .addCase(updateTask.pending, state => { state.error = null; })
+
       .addCase(updateTask.fulfilled, (state, action) => {
         state.loading = false;
         const idx = state.items.findIndex(t => t._id === action.payload._id);
@@ -61,7 +63,8 @@ const slice = createSlice({
       })
       .addCase(updateTask.rejected, (state, action) => { state.loading = false; state.error = action.error.message; })
 
-      .addCase(deleteTask.pending, state => { state.loading = true; })
+      .addCase(deleteTask.pending, state => { state.error = null; })
+
       .addCase(deleteTask.fulfilled, (state, action) => { state.loading = false; state.items = state.items.filter(t => t._id !== action.payload); })
       .addCase(deleteTask.rejected, (state, action) => { state.loading = false; state.error = action.error.message; });
   }
