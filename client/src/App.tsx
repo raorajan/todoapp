@@ -1,15 +1,13 @@
-import { useState } from 'react'
-
-import './App.css'
+import './App.css';
+import TasksComponent from './modules/container';
 
 function App() {
-
   return (
-    <div>
-      <h1 className='text-3xl font-bold underline
-      text-red-500'>Todo App</h1>
+    <div style={{padding:20}}>
+      <h1 style={{textAlign:'center'}}>Todo App</h1>
+      <TasksComponent />
     </div>
-  )
+  );
 }
 
-export default App
+export default App;
