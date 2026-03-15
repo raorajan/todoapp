@@ -17,6 +17,8 @@ app.use(express.urlencoded({ extended: true }));
 app.get('/', (req: Request, res: Response) => {
   res.json({ message: 'Welcome to Express TypeScript Server' });
 });
+console.log('Mounting /api/tasks routes');
+app.use('/api/tasks', todoRoutes);
 
 app.use((req: Request, res: Response) => {
   res.status(404).json({
@@ -28,8 +30,6 @@ app.use((req: Request, res: Response) => {
 const server = app.listen(PORT, () => {
   console.log(`Server running on port ${PORT} in ${process.env.NODE_ENV} mode`);
 });
-
-app.use('/api/tasks', todoRoutes)
 
 process.on('unhandledRejection', (err: Error) => {
   console.log('UNHANDLED REJECTION! 💥 Shutting down...');
