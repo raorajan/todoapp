@@ -1,5 +1,5 @@
 import { Request, Response } from 'express';
-import Task from '../models/todo.models';
+import Task, { TaskCreateSchema, TaskUpdateSchema } from '../models/todo.models';
 
 export const getTasks = async (req: Request, res: Response) => {
   try {
@@ -12,7 +12,11 @@ export const getTasks = async (req: Request, res: Response) => {
 
 export const createTask = async (req: Request, res: Response) => {
   try {
-    const task = await Task.create(req.body);
+    const parsed = TaskCreateSchema.safeParse(req.body);
+    if (!parsed.success) {
+      return res.status(400).json({ success: false, message: 'Validation error', errors: parsed.error.format() });
+    }
+    const task = await Task.create(parsed.data);
     res.status(201).json(task);
   } catch (error) {
     res.status(500).json({ message: 'Error creating task' });
@@ -21,7 +25,11 @@ export const createTask = async (req: Request, res: Response) => {
 
 export const updateTask = async (req: Request, res: Response) => {
   try {
-    const task = await Task.findByIdAndUpdate(req.params.id, req.body, { new: true });
+    const parsed = TaskUpdateSchema.safeParse(req.body);
+    if (!parsed.success) {
+      return res.status(400).json({ success: false, message: 'Validation error', errors: parsed.error.format() });
+    }
+    const task = await Task.findByIdAndUpdate(req.params.id, parsed.data, { new: true });
     res.status(200).json(task);
   } catch (error) {
     res.status(500).json({ message: 'Error updating task' });

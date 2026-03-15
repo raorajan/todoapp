@@ -1,4 +1,5 @@
 import mongoose, { Document, Schema } from 'mongoose';
+import { z } from 'zod';
 
 export enum TaskStatus {
   TODO = 'todo',
@@ -52,3 +53,12 @@ const TaskSchema: Schema = new Schema(
 );
 
 export default mongoose.model<ITask>('Task', TaskSchema);
+
+export const TaskCreateSchema = z.object({
+  title: z.string().min(1, 'Title is required'),
+  description: z.string().optional(),
+  status: z.nativeEnum(TaskStatus).optional(),
+  priority: z.nativeEnum(TaskPriority).optional(),
+});
+
+export const TaskUpdateSchema = TaskCreateSchema.partial();
