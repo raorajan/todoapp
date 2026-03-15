@@ -14,6 +14,8 @@ const TaskFormSchema = z.object({
 
 type TaskFormData = z.infer<typeof TaskFormSchema>;
 
+import { Card, Button, Input, Select, Badge } from '../../components/UI';
+
 export default function TasksComponent() {
   const dispatch = useAppDispatch();
   const { items: tasks, loading } = useAppSelector(s => s.tasks);
@@ -38,65 +40,127 @@ export default function TasksComponent() {
     try {
       await dispatch(createTask(result.data)).unwrap();
       setFormData({ title: '', description: '', priority: 'medium' });
-      console.log('Task created');
     } catch (err) { console.error('Create failed', err); }
   };
 
   const handleDelete = async (id: string) => {
-    if (!confirm('Are you sure?')) return;
+    if (!confirm('Are you sure you want to delete this task?')) return;
     try {
       await dispatch(deleteTask(id)).unwrap();
-      console.log('Task deleted');
     } catch (e) { console.error('Delete failed', e); }
   };
 
   const handleStatus = async (id: string, status: TaskStatus) => {
     try {
       await dispatch(updateTask({ id, data: { status } })).unwrap();
-      console.log('Status updated');
     } catch (e) { console.error('Update failed', e); }
   };
 
   return (
-    <div>
-      <form onSubmit={handleCreate} style={{ display: 'flex', gap: 8, marginBottom: 12 }}>
-        <input value={formData.title} onChange={e => setFormData({ ...formData, title: e.target.value })} placeholder="Title" />
-        <select value={formData.priority} onChange={e => setFormData({ ...formData, priority: e.target.value as TaskPriority })}>
-          <option value="low">Low</option>
-          <option value="medium">Medium</option>
-          <option value="high">High</option>
-        </select>
-        <input value={formData.description} onChange={e => setFormData({ ...formData, description: e.target.value })} placeholder="Description" />
-        <button type="submit">Create</button>
-      </form>
+    <div className="animate-in">
+      <Card className="glass" style={{ marginBottom: '2.5rem', padding: '1.5rem' }}>
+        <form onSubmit={handleCreate} className="task-form">
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem', flex: 1 }}>
+            <Input 
+              value={formData.title} 
+              onChange={e => setFormData({ ...formData, title: e.target.value })} 
+              placeholder="What needs to be done?" 
+              style={{ fontSize: '1.1rem', fontWeight: 500 }}
+            />
+            {errors.title && <span style={{ color: 'var(--error)', fontSize: '0.8rem' }}>{errors.title}</span>}
+            <Input 
+              value={formData.description} 
+              onChange={e => setFormData({ ...formData, description: e.target.value })} 
+              placeholder="Add a description (optional)" 
+              style={{ fontSize: '0.9rem', opacity: 0.8 }}
+            />
+          </div>
+          <div style={{ display: 'flex', gap: '0.75rem', alignItems: 'start' }}>
+            <Select 
+              value={formData.priority} 
+              onChange={e => setFormData({ ...formData, priority: e.target.value as TaskPriority })}
+              style={{ width: '120px' }}
+            >
+              <option value="low">Low</option>
+              <option value="medium">Medium</option>
+              <option value="high">High</option>
+            </Select>
+            <Button type="submit" style={{ height: '46px', padding: '0 1.5rem' }}>
+              Create
+            </Button>
+          </div>
+        </form>
+      </Card>
 
-      {loading ? <div>Loading...</div> : (
-        list.length === 0 ? <div>No tasks</div> : (
-          <table style={{ width: '100%', borderCollapse: 'collapse' }}>
-            <thead>
-              <tr><th>Title</th><th>Priority</th><th>Status</th><th>Created</th><th>Actions</th></tr>
-            </thead>
-            <tbody>
-              {list.map(t => (
-                <tr key={t._id} style={{ borderBottom: '1px solid #eee' }}>
-                  <td>{t.title}</td>
-                  <td>{t.priority}</td>
-                  <td>
-                    <select value={t.status} onChange={e => handleStatus(t._id, e.target.value as TaskStatus)}>
-                      <option value="todo">todo</option>
-                      <option value="in-progress">in-progress</option>
-                      <option value="done">done</option>
-                    </select>
-                  </td>
-                  <td>{new Date(t.createdAt).toLocaleString()}</td>
-                  <td><button onClick={() => handleDelete(t._id)} style={{ color: 'red' }}>Delete</button></td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
+      {loading ? (
+        <div style={{ textAlign: 'center', padding: '4rem', opacity: 0.5 }}>
+          <div className="animate-pulse">Loading tasks...</div>
+        </div>
+      ) : (
+        list.length === 0 ? (
+          <Card style={{ textAlign: 'center', padding: '4rem', opacity: 0.5 }}>
+            <p style={{ fontSize: '1.1rem' }}>No tasks found. Start by creating one above!</p>
+          </Card>
+        ) : (
+          <div style={{ display: 'grid', gap: '1.25rem' }}>
+            {list.map((t, index) => (
+              <Card 
+                key={t._id} 
+                className={`animate-in delay-${(index % 3) + 1} task-card`}
+              >
+                <div style={{ flex: 1, minWidth: 0 }}>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', marginBottom: '0.4rem', flexWrap: 'wrap' }}>
+                    <h3 style={{ margin: 0, fontSize: '1.125rem', textDecoration: t.status === 'done' ? 'line-through' : 'none', opacity: t.status === 'done' ? 0.5 : 1, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                      {t.title}
+                    </h3>
+                    <div style={{ display: 'flex', gap: '0.4rem' }}>
+                      <Badge variant={t.priority}>{t.priority}</Badge>
+                      <Badge variant={t.status === 'in-progress' ? 'progress' : t.status}>{t.status}</Badge>
+                    </div>
+                  </div>
+                  {t.description && (
+                    <p style={{ margin: 0, fontSize: '0.9rem', opacity: 0.6, textDecoration: t.status === 'done' ? 'line-through' : 'none', wordBreak: 'break-word' }}>
+                      {t.description}
+                    </p>
+                  )}
+                  <div style={{ fontSize: '0.75rem', opacity: 0.4, marginTop: '0.6rem' }}>
+                    {new Date(t.createdAt).toLocaleDateString()}
+                  </div>
+                </div>
+                
+                <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', marginLeft: 'auto' }}>
+                  <Select 
+                    value={t.status} 
+                    onChange={e => handleStatus(t._id, e.target.value as TaskStatus)}
+                    style={{ width: '120px', padding: '0.5rem 0.6rem', fontSize: '0.85rem' }}
+                  >
+                    <option value="todo">To Do</option>
+                    <option value="in-progress">Progress</option>
+                    <option value="done">Done</option>
+                  </Select>
+                  <Button 
+                    variant="ghost" 
+                    onClick={(e) => {
+                      e.preventDefault();
+                      e.stopPropagation();
+                      handleDelete(t._id);
+                    }}
+                    style={{ padding: '0.5rem', borderRadius: '0.5rem', color: 'var(--error)', minWidth: '40px' }}
+                    title="Delete Task"
+                  >
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                      <path d="M3 6h18m-2 0v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6m3 0V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2" />
+                    </svg>
+                  </Button>
+                </div>
+              </Card>
+            ))}
+          </div>
         )
       )}
     </div>
   );
+
 }
+
 

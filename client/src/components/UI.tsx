@@ -6,20 +6,31 @@ export const Card: React.FC<{ children: React.ReactNode, className?: string, sty
   </div>
 );
 
-export const Button: React.FC<React.ButtonHTMLAttributes<HTMLButtonElement> & { variant?: 'primary' | 'danger' }> = ({ 
+export const Button: React.FC<React.ButtonHTMLAttributes<HTMLButtonElement> & { variant?: 'primary' | 'danger' | 'ghost' | 'outline' }> = ({ 
   children, 
   variant = 'primary', 
   className = '', 
   ...props 
-}) => (
-  <button 
-    className={`btn ${variant === 'primary' ? 'btn-primary' : ''} ${className}`} 
-    {...props}
-    style={variant === 'danger' ? { background: 'var(--error)', color: 'white' } : {}}
-  >
-    {children}
-  </button>
-);
+}) => {
+  const getVariantStyles = () => {
+    switch (variant) {
+      case 'danger': return { background: 'var(--error)', color: 'white' };
+      case 'ghost': return { background: 'transparent', color: 'var(--text)' };
+      case 'outline': return { background: 'transparent', color: 'var(--accent)', border: '1px solid var(--accent)' };
+      default: return {};
+    }
+  };
+
+  return (
+    <button 
+      className={`btn ${variant === 'primary' ? 'btn-primary' : ''} ${variant === 'ghost' ? 'btn-ghost' : ''} ${className}`} 
+      {...props}
+      style={{ ...getVariantStyles(), ...props.style }}
+    >
+      {children}
+    </button>
+  );
+};
 
 export const Input: React.FC<React.InputHTMLAttributes<HTMLInputElement>> = ({ className = '', ...props }) => (
   <input className={`input ${className}`} {...props} />
@@ -36,7 +47,8 @@ export const Select: React.FC<React.SelectHTMLAttributes<HTMLSelectElement>> = (
 );
 
 export const Badge: React.FC<{ children: React.ReactNode, variant?: string }> = ({ children, variant = '' }) => (
-  <span className={`badge ${variant}`}>
+  <span className={`badge ${variant ? `badge-${variant}` : ''}`}>
     {children}
   </span>
 );
+

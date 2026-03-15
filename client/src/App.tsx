@@ -3,8 +3,12 @@ import TasksComponent from './modules/container';
 
 function App() {
   return (
-    <div style={{padding:20}}>
-      <h1 style={{textAlign:'center'}}>Todo App</h1>
+    <div id="root">
+      <header className="animate-in" style={{ textAlign: 'center', marginBottom: '1rem' }}>
+        <p style={{ fontSize: '1.2rem', opacity: 0.6 }}>
+          Organize your life, one task at a time.
+        </p>
+      </header>
       <TasksComponent />
     </div>
   );
